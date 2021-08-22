@@ -1,9 +1,6 @@
 {
-    "normal": [
+    "character_size": [
         "symbols.json",
         "en.json"
-    ],
-    "bold" : [
-
     ]
 }
