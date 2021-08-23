@@ -6,7 +6,9 @@ import pathlib
 
 SECTION_SIGN = '§'  # \u00a7
 
-CONFIG_FILE = 'config/config.json'
+
+cur_dir = pathlib.Path(__file__).parent
+CHARACTER_SIZE_FILES = cur_dir / 'config'
 
 # value in pixels
 MAX_LINE_LEN = 114
@@ -21,17 +23,32 @@ def load_json(file_name):
 
 
 class Config:
-    def __init__(self, config_file):
-        config = load_json(config_file)
-        path = pathlib.Path(config_file).parent
-        self.character_size = {}
-        for file_name in config['character_size']:
-            self.character_size |= load_json(path.joinpath(file_name))
-
-
-class DefaultConfig(Config):
     def __init__(self):
-        super().__init__(CONFIG_FILE)
+        self.character_size = {}
+
+    def extend(self, character_size):
+        self.character_size |= character_size
+
+
+class FromFileConfig(Config):
+    def __init__(self, character_size_files_dir):
+        super().__init__()
+        for file_name in pathlib.Path(character_size_files_dir).iterdir():
+            self.extend(load_json(file_name))
+
+
+class DefaultConfig(FromFileConfig):
+    def __init__(self):
+        super().__init__(CHARACTER_SIZE_FILES)
+
+
+class CharError(Exception):
+    """
+    The char size was not found in the config
+    """
+    def __init__(self, char):
+        super().__init__(char)
+        self.char = char
 
 
 class TextToBook:
@@ -40,11 +57,19 @@ class TextToBook:
     """
 
     def __init__(self, config=None):
+        # Perhaps it is worth making the field public
         self._config = config or DefaultConfig()
+
+    @property
+    def config(self):
+        return self._config
 
     def get_char_len(self, char, is_bold):
         # all (I hope) bold characters are 1 pixel wider than normal
-        return self._config.character_size[char] + (2 if is_bold else 1)
+        size = self._config.character_size.get(char)
+        if size is None:
+            raise CharError(char)
+        return size + (2 if is_bold else 1)
 
     def get_word_len(self, word, is_bold):
         return sum(self.get_char_len(char, is_bold) for char in word)
