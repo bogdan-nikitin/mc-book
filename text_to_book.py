@@ -35,16 +35,19 @@ class DefaultConfig(Config):
 
 
 class TextToBook:
+    """
+    A class for inserting text into a Minecraft book.
+    """
+
     def __init__(self, config=None):
-        self.config = config or DefaultConfig()
-        self.is_bold = False
+        self._config = config or DefaultConfig()
 
-    def get_char_len(self, char):
+    def get_char_len(self, char, is_bold):
         # all (I hope) bold characters are 1 pixel wider than normal
-        return self.config.character_size[char] + (2 if self.is_bold else 1)
+        return self._config.character_size[char] + (2 if is_bold else 1)
 
-    def get_word_len(self, word):
-        return sum(map(self.get_char_len, word))
+    def get_word_len(self, word, is_bold):
+        return sum(self.get_char_len(char, is_bold) for char in word)
 
     def split_on_pages(self, text):
         pages = [[]]
@@ -52,19 +55,20 @@ class TextToBook:
         lines_count = 1
         parts = self.__split_on_parts(text)
         section = ''
+        is_bold = False
         for part in parts:
             if part.startswith(SECTION_SIGN):
                 modifier = part[1:]
                 if modifier == 'r':
-                    self.is_bold = False
+                    is_bold = False
                     section = ''
                 elif self._is_color_modifier(modifier):
                     # color section resets everything for some reason
-                    self.is_bold = False
+                    is_bold = False
                     section = part
                 else:
                     if modifier == 'l':
-                        self.is_bold = True
+                        is_bold = True
                     section += part
                 pages[-1] += part
             elif part == '\n':
@@ -76,10 +80,10 @@ class TextToBook:
                     lines_count = 1
                 line_len = 0
             else:
-                word_len = self.get_word_len(part)
+                word_len = self.get_word_len(part, is_bold)
                 if word_len > MAX_LINE_LEN:
                     word_parts, last_part_len = (
-                        self.__split_big_word_and_get_last_len(part)
+                        self.__split_big_word_and_get_last_len(part, is_bold)
                     )
                     if line_len == 0:
                         lines_count -= 1
@@ -164,11 +168,11 @@ class TextToBook:
     def __join_parts(parts):
         return ''.join(parts)
 
-    def __split_big_word_and_get_last_len(self, word):
+    def __split_big_word_and_get_last_len(self, word, is_bold):
         parts = ['']
         last_part_len = 0
         for char in word:
-            char_len = self.get_char_len(char)
+            char_len = self.get_char_len(char, is_bold)
             if last_part_len + char_len > MAX_LINE_LEN:
                 parts += ['']
                 last_part_len = 0

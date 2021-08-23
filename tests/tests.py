@@ -43,7 +43,8 @@ class TestPagesSplit(unittest.TestCase):
             with self.subTest(file_name=file_name):
                 text_to_book = TextToBook(CONFIG)
                 text, text_split = load_text_test(file_name)
-                self.assertEqual(text_split, text_to_book.split_on_pages(text))
+                self.assertSequenceEqual(text_split,
+                                         text_to_book.split_on_pages(text))
 
 
 if __name__ == '__main__':
