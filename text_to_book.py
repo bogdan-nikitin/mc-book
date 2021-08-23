@@ -1,7 +1,10 @@
 import json
 import pathlib
 
-SECTION_SIGN = '§'
+# TODO: Stop storing pages as a list and save them in strings instead
+#  (or use lists to store lines)
+
+SECTION_SIGN = '§'  # \u00a7
 
 CONFIG_FILE = 'config/config.json'
 
@@ -78,6 +81,8 @@ class TextToBook:
                     word_parts, last_part_len = (
                         self.__split_big_word_and_get_last_len(part)
                     )
+                    if line_len == 0:
+                        lines_count -= 1
                     for word_part in word_parts:
                         lines_count += 1
                         if lines_count > MAX_LINES:
@@ -103,9 +108,18 @@ class TextToBook:
 
     def generate_give(self, text, title, author):
         """
-        Generates book give command with specified text, title and author
+        Generates book /give command with the specified text, title and author
         """
         pages = self.split_on_pages(text)
+        return self.generate_give_from_pages(pages, title, author)
+
+    @staticmethod
+    def generate_give_from_pages(pages, title, author):
+        """
+        Generates book /give command with the specified pages, title and author
+
+        If you need to generate a book from text, use generate_give() instead
+        """
         pages_json = [json.dumps({'text': page}) for page in pages]
         return (f'/give @p written_book{{pages:{pages_json},'
                 f'title:{repr(title)},author:{repr(author)}}}')

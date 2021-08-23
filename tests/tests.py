@@ -3,7 +3,7 @@ import unittest
 
 from text_to_book import TextToBook, Config
 
-# Don't forget about trailing newlines in tests!
+# Some tests for big words may be unnecessary
 
 
 TEXT_FILE_DELIMITER = '\n^^^\n'
@@ -22,6 +22,23 @@ def load_text_test(file_name):
 
 class TestPagesSplit(unittest.TestCase):
     def test_text_files(self):
+        """
+        Tests split_on_pages() for texts, located in ./text_files
+
+        All texts must have next format:
+
+        % text to split %
+        ^^^
+        % page 1 of the split text %
+        @@@
+        % page 2 %
+        @@@
+        % page 3 %
+        @@@
+        % page N %
+
+        Don't forget about trailing newlines in texts
+        """
         for file_name in TEXT_FILES_PATH.iterdir():
             with self.subTest(file_name=file_name):
                 text_to_book = TextToBook(CONFIG)
