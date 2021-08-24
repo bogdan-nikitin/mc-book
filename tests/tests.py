@@ -1,7 +1,7 @@
 import pathlib
 import unittest
 
-from text_to_book import TextToBook, Config
+from text_to_book import TextToBook, CharError
 
 # Some tests for big words may be unnecessary
 
@@ -9,7 +9,6 @@ from text_to_book import TextToBook, Config
 TEXT_FILE_DELIMITER = '\n^^^\n'
 TEXT_FILE_PAGE_DELIMITER = '\n@@@\n'
 
-CONFIG = Config('../config/config.json')
 TEXT_FILES_PATH = pathlib.Path('./text_files')
 
 
@@ -41,10 +40,22 @@ class TestPagesSplit(unittest.TestCase):
         """
         for file_name in TEXT_FILES_PATH.iterdir():
             with self.subTest(file_name=file_name):
-                text_to_book = TextToBook(CONFIG)
+                text_to_book = TextToBook()
                 text, text_split = load_text_test(file_name)
                 self.assertSequenceEqual(text_split,
                                          text_to_book.split_on_pages(text))
+
+
+class TestExceptionRaise(unittest.TestCase):
+    def test_char_error(self):
+        text_to_book = TextToBook()
+        # run several tests to make sure that CharError.char is equal to the
+        # unknown character and is not set as some default value
+        for test_char_num in range(1, 4):
+            with self.subTest(test_char_num=test_char_num):
+                with self.assertRaises(CharError) as cm:
+                    text_to_book.split_on_pages(chr(test_char_num))
+                self.assertEqual(ord(cm.exception.char), test_char_num)
 
 
 if __name__ == '__main__':
