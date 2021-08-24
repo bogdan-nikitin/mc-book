@@ -24,10 +24,17 @@ def load_json(file_name):
 
 class Config:
     def __init__(self):
-        self.character_size = {}
+        self._character_size = {}
+        self.default_size = None
+
+    def get_char_size(self, char):
+        size = self._character_size.get(char, self.default_size)
+        if not size:
+            raise CharError(char)
+        return size
 
     def extend(self, character_size):
-        self.character_size |= character_size
+        self._character_size |= character_size
 
 
 class FromFileConfig(Config):
@@ -65,10 +72,8 @@ class TextToBook:
         return self._config
 
     def get_char_len(self, char, is_bold):
+        size = self._config.get_char_size(char)
         # all (I hope) bold characters are 1 pixel wider than normal
-        size = self._config.character_size.get(char)
-        if size is None:
-            raise CharError(char)
         return size + (2 if is_bold else 1)
 
     def get_word_len(self, word, is_bold):
