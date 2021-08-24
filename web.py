@@ -77,10 +77,9 @@ if st.sidebar.checkbox('Turn on custom characters'):
     st.markdown('---')
     st.header('Custom characters')
     st.markdown('''
-The application requires the character sizes from Minecraft to divide the 
-text 
-into pages, but there is no data about some characters, so an error may occur 
-while the application is running.
+The application requires the character sizes from Minecraft to split the 
+text into pages, but there is no data about some characters, so an error may 
+occur while the application is running.
     ''')
     st.subheader('Fixing the error')
     st.markdown(f'''
