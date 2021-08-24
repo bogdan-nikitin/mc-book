@@ -47,10 +47,9 @@ author = st.text_input('Book author')
 st.button('Generate')  # clicking reruns script
 
 text_to_bark = get_text_to_book()
-have_char_error = False
 try:
     # without a container, the "Custom characters" header gets the id of the
-    # "Book pages" header
+    # "Book Pages" header, or vice versa
     with st.container():
         pages = text_to_bark.split_on_pages(text)
 
@@ -62,9 +61,10 @@ try:
             st.subheader(f'Page {i + 1}')
             st.text(page)
 except CharError as er:
-    st.error(f'Size of character "{er.char}" is unknown. '
-             f'[Learn more](#custom-characters) ')
-    have_char_error = True
+    st.error(f'''
+Size of character "{er.char}" is unknown. Enable custom characters in the 
+sidebar on the left to get more information
+    ''')
 except Exception as e:
     st.error(f'''
 Exception "{e.__class__.__name__}" was raised. Go to {GITHUB_ISSUES_LINK} to
@@ -73,14 +73,8 @@ parameters entered on the page.
     ''')
 
 st.sidebar.header('Settings')
-if st.sidebar.checkbox('Turn on custom characters', have_char_error):
+if st.sidebar.checkbox('Turn on custom characters'):
     st.markdown('---')
-    if not have_char_error:
-        st.info('''
-The information below is intended for people who have an error while using the 
-application
-        ''')
-    # Custom characters info
     st.header('Custom characters')
     st.markdown('''
 The application requires the character sizes from Minecraft to divide the 
