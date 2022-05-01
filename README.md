@@ -6,6 +6,13 @@ The project is a web application and command-line interface that allow you to
 insert large texts into books in Minecraft, by generating the /give command or 
 splitting the text into pages for later copying manually.
 
+All other text insertion utilities that I found did not take into account the 
+fact that Minecraft book uses proportional font, and therefore, you need to 
+divide the text not by the number of characters, but by their total width. 
+You must also take into account that bold characters have a different 
+width. This app takes all these factors into account and divides the text into 
+pages in an optimal way.
+
 The web application is available at the link 
 https://share.streamlit.io/bogdan-nikitin/mc-book/feature/web-streamlit/web.py
 
@@ -14,7 +21,7 @@ https://share.streamlit.io/bogdan-nikitin/mc-book/feature/web-streamlit/web.py
 To run this application, you need to install Python version 3.9 or higher and 
 the Streamlit library (to run a web application). The application has the 
 following entry points:
-* \_\_main__.py - command-line interface
+* \_\_main\_\_.py - command-line interface
 * web.py - Streamlit web app
 
 ## Contributing
